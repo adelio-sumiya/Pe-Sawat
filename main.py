@@ -4,6 +4,7 @@ pengguna = {
         "admin": {"username": "admin", "password": "admin123", "role": "admin"},
         "user1": {"username": "user1", "password": "user123", "role": "user"}
 }
+current_user = []
 def login():
     while True:
         print("=== SISTEM PEMESANAN TIKET PESAWAT ===")
@@ -54,3 +55,17 @@ def pemesanan_tiket():
     4. Denpasar
     ''')
     departure = input('masukkan lokasi departure')
+
+
+def main():
+    login()
+    while True:
+        if current_user == 'admin':
+            menu_admin()
+            break
+        else:
+            menu_user()
+            break
+
+if __name__ == "__main__":
+    main()
