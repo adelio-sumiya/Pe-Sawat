@@ -1,9 +1,23 @@
 import os
 
-
+pengguna = {
+        "admin": {"username": "admin", "password": "admin123", "role": "admin"},
+        "user1": {"username": "user1", "password": "user123", "role": "user"}
+}
 def login():
-    username = input('')
-    password = input('')
+    while True:
+        print("=== SISTEM PEMESANAN TIKET PESAWAT ===")
+        username = input("Username: ")
+        password = input("Password: ")
+
+        if username in pengguna and pengguna[username]["password"] == password:
+            current_user = pengguna[username]
+            print(f"Login berhasil sebagai {current_user['role']}")
+            return True
+        else:
+            print("Username atau password salah!")
+            if input("Coba lagi? (y/n): ").lower() != 'y':
+                return False
 
 
 def menu_admin():
