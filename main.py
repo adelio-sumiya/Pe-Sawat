@@ -123,7 +123,7 @@ def menu_user():
             if masukkan == 1:
                 pemesanan_tiket()
             elif masukkan == 2:
-               tampilkan_jadwal()
+                tampilkan_jadwal()
             elif masukkan == 3:
                 riwayat()
             elif masukkan == 4:
