@@ -80,17 +80,18 @@ def login():
 # ============================ admin ============================
 def menu_admin():
     while True:
+        print_header('MENU ADMIN')        
         print('''
-        ===== Menu Admin =====
-          1. lihat jadwal pesawat
-          2. kelola data jadwal pesawat
-          3. lihat laporan
-          4. logout
+1. lihat jadwal pesawat
+2. kelola data jadwal pesawat
+3. lihat laporan
+4. logout
           ''')
         try:
             masukkan = int(input("Masukkan pilihan: "))
             if masukkan == 1:
                 tampilkan_jadwal()
+                input("\nTekan Enter untuk kembali ke menu...")    
             elif masukkan == 2:
                 klola_data()
             elif masukkan == 3:
@@ -124,8 +125,10 @@ def menu_user():
                 pemesanan_tiket()
             elif masukkan == 2:
                 tampilkan_jadwal()
+                input("\nTekan Enter untuk kembali ke menu...")       
             elif masukkan == 3:
                 riwayat()
+                input("\nTekan Enter untuk kembali ke menu...")       
             elif masukkan == 4:
                 login()
             else:
@@ -143,9 +146,14 @@ def load_jadwal():
 
     
 def tampilkan_jadwal():
-    data_pesawat = pd.read_csv('jadwal_pesawat.csv')
-    data_pesawat.index += 1
-    print(tabulate(data_pesawat, headers='keys', tablefmt='fancy_grid'))
+    data = []
+    with open('jadwal_pesawat.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    print(tabel)
+ 
     
 def pemesanan_tiket():
     print_header("PEMESANAN TIKET")
@@ -258,20 +266,17 @@ def pemesanan_tiket():
     
     input("\nTekan Enter untuk kembali ke menu...")
 
-
-
-def load_jadwal():
-    jadwal = []
-    with open('jadwal_pesawat.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        for row in file:
-            jadwal.append(row)
-    return jadwal
-
 def riwayat():
-    data_riwayat = pd.read_csv('riwayat_pemesanan.csv')
-    print(tabulate(data_riwayat, headers='keys', tablefmt='fancy_grid'))
+    data = []
+    with open('riwayat_pemesanan.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    print(tabel)
+            
 
+    
 def main():
     login()
 
