@@ -2,6 +2,9 @@ import os
 import csv
 from datetime import datetime
 import time
+import pandas as pd
+from tabulate import tabulate
+
 
 
 # ============================ fungsi tambahan ============================
@@ -44,15 +47,15 @@ def login():
         
         if pilihan == '1':
             clear()
-            print_header("""
-     ___      _______  _______  ___   __    _ 
-    |   |    |       ||       ||   | |  |  | |
-    |   |    |   _   ||    ___||   | |   |_| |
-    |   |    |  | |  ||   | __ |   | |       |
-    |   |___ |  |_|  ||   ||  ||   | |  _    |
-    |       ||       ||   |_| ||   | | | |   |
-    |_______||_______||_______||___| |_|  |__|                          
-                        """)
+            print("""
+.##........#######...######...####.##....##
+.##.......##.....##.##....##...##..###...##
+.##.......##.....##.##.........##..####..##
+.##.......##.....##.##...####..##..##.##.##
+.##.......##.....##.##....##...##..##..####
+.##.......##.....##.##....##...##..##...###
+.########..#######...######...####.##....##             
+             """)
             username = input("Username: ")
             password = input("Password: ")
             pengguna = {'user' : 'user123', 'admin' : 'admin123'}
@@ -140,14 +143,9 @@ def load_jadwal():
 
     
 def tampilkan_jadwal():
-    jadwal = load_jadwal()
-    print("\nJadwal Penerbangan:")
-    print("-"*80)
-    print(f"{'NO':<4}{'AIRLINES':<15}{'WAKTU':<20}{'HARGA':<15}")
-    print("-"*80)
-    for row in jadwal:
-        print(f"{row['NO']:<4}{row['AIRLINES']:<15}{row['TIME']:<20}Rp {int(row['PRICE']):,}")
-    print("-"*80)
+    data_pesawat = pd.read_csv('jadwal_pesawat.csv')
+    data_pesawat.index += 1
+    print(tabulate(data_pesawat, headers='keys', tablefmt='fancy_grid'))
     
 def pemesanan_tiket():
     print_header("PEMESANAN TIKET")
@@ -271,15 +269,8 @@ def load_jadwal():
     return jadwal
 
 def riwayat():
-    jadwal = load_jadwal()
-    print("\nJadwal Penerbangan:")
-    print("-"*80)
-    print(f"{'NO':<4}{'AIRLINES':<15}{'WAKTU':<20}{'PRICE':<15}")
-    print("-"*80)
-    for row in jadwal:
-        print(f"{row['NO']:<4}{row['AIRLINES']:<15}{row['TIME']:<20}Rp {int(row['PRICE']):<15}")
-    print("-"*80)
-
+    data_riwayat = pd.read_csv('riwayat_pemesanan.csv')
+    print(tabulate(data_riwayat, headers='keys', tablefmt='fancy_grid'))
 
 def main():
     login()
