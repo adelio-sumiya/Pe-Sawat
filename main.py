@@ -3,18 +3,13 @@ import csv
 from datetime import datetime
 import time
 
-def print_header(text):
+
+# ============================ fungsi tambahan ============================
+def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
-    print("="*50)
-    print(f"{text:^50}")
-    print("="*50)
 
-pengguna = {
-        "admin": {"username": "admin", "password": "admin123", "role": "admin"},
-        "user1": {"username": "user1", "password": "user123", "role": "user"}
-}
-
-print('''                                                                                                             
+def cover():
+    print('''                                                                                                             
 8 888888888o   8 8888888888     d888888o.           .8. `8.`888b                 ,8' .8.    8888888 8888888888 
 8 8888    `88. 8 8888         .`8888:' `88.        .888. `8.`888b               ,8' .888.         8 8888       
 8 8888     `88 8 8888         8.`8888.   Y8       :88888. `8.`888b             ,8' :88888.        8 8888       
@@ -25,25 +20,61 @@ print('''
 8 8888         8 8888        8b   `8.`8888.  .8'   `8. `88888. `8.`888`8.`88' .8'   `8. `88888.   8 8888       
 8 8888         8 8888        `8b.  ;8.`8888 .888888888. `88888. `8.`8' `8,`' .888888888. `88888.  8 8888       
 8 8888         8 888888888888 `Y8888P ,88P'.8'       `8. `88888. `8.`   `8' .8'       `8. `88888. 8 8888       
-''')
-current_user = []
+'''.center(60))
+
+def garis():
+    print('='*120)
+
+def print_header(text):
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print("="*50)
+    print(f"{text:^50}")
+    print("="*50)
+
+
 def login():
     while True:
-        print("=== SISTEM PEMESANAN TIKET PESAWAT ===")
-        username = input("Username: ")
-        password = input("Password: ")
-
-        if username in pengguna and pengguna[username]["password"] == password:
-            current_user = pengguna[username]
-            print(f"Login berhasil sebagai {current_user['role']}")
-            return True
+        garis()
+        cover()
+        garis()
+        print("1. Login")
+        print("2. Keluar")
+        
+        pilihan = input("\nPilih menu: ")
+        
+        if pilihan == '1':
+            clear()
+            print_header("""
+     ___      _______  _______  ___   __    _ 
+    |   |    |       ||       ||   | |  |  | |
+    |   |    |   _   ||    ___||   | |   |_| |
+    |   |    |  | |  ||   | __ |   | |       |
+    |   |___ |  |_|  ||   ||  ||   | |  _    |
+    |       ||       ||   |_| ||   | | | |   |
+    |_______||_______||_______||___| |_|  |__|                          
+                        """)
+            username = input("Username: ")
+            password = input("Password: ")
+            pengguna = {'user' : 'user123', 'admin' : 'admin123'}
+            if username in pengguna and pengguna[username] == password:
+                print("\nLogin berhasil!")
+                time.sleep(1)
+                if username == 'admin':
+                    menu_admin()
+                else:
+                    menu_user()
+            else:
+                print("\nUsername atau password salah!")
+                time.sleep(1)
+        
+        elif pilihan == '2':
+            print("\nTerima kasih telah menggunakan layanan kami!")
+            break
         else:
-            print("Username atau password salah!")
-            if input("Coba lagi? (y/n): ").lower() != 'y':
-                return False
+            print("Menu tidak valid!")
 
 
-
+# ============================ admin ============================
 def menu_admin():
     while True:
         print('''
@@ -56,7 +87,7 @@ def menu_admin():
         try:
             masukkan = int(input("Masukkan pilihan: "))
             if masukkan == 1:
-                jadwal_pesawat()
+                tampilkan_jadwal()
             elif masukkan == 2:
                 klola_data()
             elif masukkan == 3:
@@ -74,22 +105,22 @@ def klola_data():
 def lihat_laporan():
     pass
 
-
+# ============================ user ============================
 def menu_user():
     while True:
+        print_header('MENU')
         print('''
-         ===== Menu User =====
-          1. pemesanan tiket
-          2. lihat jadwal pesawat
-          3. riwayat pemesanan
-          4. logout
-          ''')
+1. pemesanan tiket
+2. lihat jadwal pesawat
+3. riwayat pemesanan
+4. logout
+''')
         try:
             masukkan = int(input("Masukkan pilihan: "))
             if masukkan == 1:
                 pemesanan_tiket()
             elif masukkan == 2:
-               jadwal_pesawat()
+               tampilkan_jadwal()
             elif masukkan == 3:
                 riwayat()
             elif masukkan == 4:
@@ -103,7 +134,10 @@ def load_jadwal():
     jadwal = []
     with open('jadwal_pesawat.csv', 'r') as file:
         reader = csv.DictReader(file)
+        for row in reader:
+            jadwal.append(row)
     return jadwal
+
     
 def tampilkan_jadwal():
     jadwal = load_jadwal()
@@ -227,30 +261,29 @@ def pemesanan_tiket():
     input("\nTekan Enter untuk kembali ke menu...")
 
 
-def jadwal_pesawat():
-    try:
-        with open('jadwal_pesawat.csv', mode='r', newline='') as file:
-            reader = csv.reader(file)
-            header = next(reader)
-            print(f"{header[0]:<20} {header[1]:<20} {header[2]:<20} {header[3]:<20}")
-            print("-" * 80)
-            for row in reader:
-                print(f"{row[0]:<20} {row[1]:<20} {row[2]:<20} {row[3]:<20}")
-    except FileNotFoundError:
-        print("File jadwal_pesawat.csv tidak ditemukan.")
+
+def load_jadwal():
+    jadwal = []
+    with open('jadwal_pesawat.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in file:
+            jadwal.append(row)
+    return jadwal
 
 def riwayat():
-    pass
+    jadwal = load_jadwal()
+    print("\nJadwal Penerbangan:")
+    print("-"*80)
+    print(f"{'NO':<4}{'AIRLINES':<15}{'WAKTU':<20}{'PRICE':<15}")
+    print("-"*80)
+    for row in jadwal:
+        print(f"{row['NO']:<4}{row['AIRLINES']:<15}{row['TIME']:<20}Rp {int(row['PRICE']):<15}")
+    print("-"*80)
+
 
 def main():
     login()
-    while True:
-        if current_user == 'admin':
-            menu_admin()
-            break
-        else:
-            menu_user()
-            break
+
 
 if __name__ == "__main__":
     main()
