@@ -8,31 +8,34 @@ from tabulate import tabulate
 
 
 # ============================ fungsi tambahan ============================
+tw = os.get_terminal_size().columns
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def cover():
     print( '''
-     8 888888888o   8 8888888888     d888888o.           .8. `8.`888b                 ,8' .8.    8888888 8888888888 
-     8 8888    `88. 8 8888         .`8888:' `88.        .888. `8.`888b               ,8' .888.         8 8888       
-     8 8888     `88 8 8888         8.`8888.   Y8       :88888. `8.`888b             ,8' :88888.        8 8888       
-     8 8888     ,88 8 8888         `8.`8888.          . `88888. `8.`888b     .b    ,8' . `88888.       8 8888       
-     8 8888.   ,88' 8 888888888888  `8.`8888.        .8. `88888. `8.`888b    88b  ,8' .8. `88888.      8 8888       
-     8 888888888P'  8 8888           `8.`8888.      .8`8. `88888. `8.`888b .`888b,8' .8`8. `88888.     8 8888       
-     8 8888         8 8888            `8.`8888.    .8' `8. `88888. `8.`888b8.`8888' .8' `8. `88888.    8 8888       
-     8 8888         8 8888        8b   `8.`8888.  .8'   `8. `88888. `8.`888`8.`88' .8'   `8. `88888.   8 8888       
-     8 8888         8 8888        `8b.  ;8.`8888 .888888888. `88888. `8.`8' `8,`' .888888888. `88888.  8 8888       
-     8 8888         8 888888888888 `Y8888P ,88P'.8'       `8. `88888. `8.`   `8' .8'       `8. `88888. 8 8888       
-'''.center(60))
+        8 888888888o   8 8888888888     d888888o.           .8. `8.`888b                 ,8' .8.    8888888 8888888888 
+        8 8888    `88. 8 8888         .`8888:' `88.        .888. `8.`888b               ,8' .888.         8 8888       
+        8 8888     `88 8 8888         8.`8888.   Y8       :88888. `8.`888b             ,8' :88888.        8 8888       
+        8 8888     ,88 8 8888         `8.`8888.          . `88888. `8.`888b     .b    ,8' . `88888.       8 8888       
+        8 8888.   ,88' 8 888888888888  `8.`8888.        .8. `88888. `8.`888b    88b  ,8' .8. `88888.      8 8888       
+        8 888888888P'  8 8888           `8.`8888.      .8`8. `88888. `8.`888b .`888b,8' .8`8. `88888.     8 8888       
+        8 8888         8 8888            `8.`8888.    .8' `8. `88888. `8.`888b8.`8888' .8' `8. `88888.    8 8888       
+        8 8888         8 8888        8b   `8.`8888.  .8'   `8. `88888. `8.`888`8.`88' .8'   `8. `88888.   8 8888       
+        8 8888         8 8888        `8b.  ;8.`8888 .888888888. `88888. `8.`8' `8,`' .888888888. `88888.  8 8888       
+        8 8888         8 888888888888 `Y8888P ,88P'.8'       `8. `88888. `8.`   `8' .8'       `8. `88888. 8 8888       
+''')
+
 
 def garis():
-    print('='*120)
+    print('='*tw)
 
 def print_header(text):
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print("="*50)
-    print(f"{text:^50}")
-    print("="*50)
+    clear()
+    cover()
+    print("="*tw)
+    print(f"{text}".center(tw))
+    print("="*tw)
 
 
 def login():
@@ -47,15 +50,18 @@ def login():
         
         if pilihan == '1':
             clear()
+            cover()
+            garis()
             print("""
-.##........#######...######...####.##....##
-.##.......##.....##.##....##...##..###...##
-.##.......##.....##.##.........##..####..##
-.##.......##.....##.##...####..##..##.##.##
-.##.......##.....##.##....##...##..##..####
-.##.......##.....##.##....##...##..##...###
-.########..#######...######...####.##....##             
+                                .##........#######...######...####.##....##
+                                .##.......##.....##.##....##...##..###...##
+                                .##.......##.....##.##.........##..####..##
+                                .##.......##.....##.##...####..##..##.##.##
+                                .##.......##.....##.##....##...##..##..####
+                                .##.......##.....##.##....##...##..##...###
+                                .########..#######...######...####.##....##             
              """)
+            garis()
             username = input("Username: ")
             password = input("Password: ")
             pengguna = {'user' : 'user123', 'admin' : 'admin123'}
@@ -80,13 +86,15 @@ def login():
 # ============================ admin ============================
 def menu_admin():
     while True:
-        print_header('MENU ADMIN')        
-        print('''
-1. lihat jadwal pesawat
-2. kelola data jadwal pesawat
-3. lihat laporan
-4. logout
-          ''')
+        print_header('MENU ADMIN') 
+        menu = [
+        "1. Lihat Jadwal Pesawat",
+        "2. Kelola Jadwal Pesawat",
+        "3. Lihat Laporan",
+        "4. Logout",
+        ]
+        for item in menu:
+            print(item.center(tw))       
         try:
             masukkan = int(input("Masukkan pilihan: "))
             if masukkan == 1:
@@ -96,6 +104,7 @@ def menu_admin():
                 klola_data()
             elif masukkan == 3:
                 lihat_laporan()
+                input("\nTekan Enter untuk melanjutkan...")
             elif masukkan == 4:
                 login()
             else:
@@ -104,22 +113,77 @@ def menu_admin():
             print("Input tidak valid! Masukkan angka sesuai pilihan menu.")
 
 def klola_data():
-    pass
+    while True:
+        print_header("EDIT JADWAL PENERBANGAN")
+        print("1. Tambah Jadwal".center(tw))
+        print("2. Edit Jadwal".center(tw))
+        print("3. Kembali".center(tw))
+        garis()
+        pilihan = input("\nPilih menu: ")
+        
+        if pilihan == '1':
+            jadwal = load_jadwal()
+            new_no = str(len(jadwal) + 1)
+            airlines = input("Masukkan nama maskapai: ")
+            waktu = input("Masukkan waktu (HH.MM - HH.MM): ")
+            while True:
+                try:
+                    harga = int(input("Masukkan harga: "))
+                    break
+                except ValueError:
+                    print("Harga harus berupa angka!")
+            
+            with open('jadwal_pesawat.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow([new_no, airlines, waktu, harga])
+            print("\nJadwal berhasil ditambahkan!")
+            
+        elif pilihan == '2':
+            tampilkan_jadwal()
+            no = input("\nMasukkan nomor jadwal yang akan diedit: ")
+            jadwal = load_jadwal()
+            
+            for row in jadwal:
+                if row['NO'] == no:
+                    row['AIRLINES'] = input("Masukkan nama maskapai baru: ")
+                    row['TIME'] = input("Masukkan waktu baru (HH.MM - HH.MM): ")
+                    while True:
+                        try:
+                            row['PRICE'] = input("Masukkan harga baru: ")
+                            break
+                        except ValueError:
+                            print("Harga harus berupa angka!")
+                    break
+            
+            with open('jadwal_pesawat.csv', 'w', newline='') as file:
+                writer = csv.DictWriter(file, fieldnames=['NO', 'AIRLINES', 'TIME', 'PRICE'])
+                writer.writeheader()
+                writer.writerows(jadwal)
+            print("\nJadwal berhasil diubah!")
+            
+        elif pilihan == '3':
+            break
+        
+        input("\nTekan Enter untuk melanjutkan...")
 
 def lihat_laporan():
-    pass
+    return riwayat()
 
 # ============================ user ============================
 def menu_user():
+    clear()
     while True:
         print_header('MENU')
-        print('''
-1. pemesanan tiket
-2. lihat jadwal pesawat
-3. riwayat pemesanan
-4. logout
-''')
+        menu = [
+        "1. Pemesanan Tiket",
+        "2. Lihat Jadwal Penerbangan",
+        "3. Riwayat Pemesanan",
+        "4. Logout",
+        ]
+        for item in menu:
+            print(item.center(tw))
         try:
+            garis()
             masukkan = int(input("Masukkan pilihan: "))
             if masukkan == 1:
                 pemesanan_tiket()
@@ -146,13 +210,17 @@ def load_jadwal():
 
     
 def tampilkan_jadwal():
+    clear()
+    cover()
+    print_header('JADWAL PENERBANGAN')
     data = []
     with open('jadwal_pesawat.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
             data.append(row)
     tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
-    print(tabel)
+    for line in tabel.split('\n'):
+        print(line.center(tw))
  
     
 def pemesanan_tiket():
