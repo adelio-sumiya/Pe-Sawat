@@ -1,3 +1,5 @@
 {
-    "python.REPL.enableREPLSmartSend": false
+    "workbench.editor.autoLockGroups": {
+        "default": true
+    }
 }
