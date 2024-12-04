@@ -1,2 +1,9 @@
+<<<<<<< HEAD
 Tanggal,Nama,Departure,Arrival,Airlines,Keberangkatan,Jumlah Penumpang,Total,Metode Pembayaran
 22/06/2025,adel,Jakarta,Makassar,LION AIR,12.00 - 14.00,2,914800,E-wallet
+22/06/2025,adelio,Jakarta,Denpasar,LION AIR,14.55 - 16.50,2,914800,E-wallet
+
+=======
+Tanggal,Nama,Departure,Arrival,Airlines,Keberangkatan,Jumlah Penumpang,Total,Metode Pembayaran
+22/06/2025,adel,Jakarta,Makassar,LION AIR,12.00 - 14.00,2,914800,E-wallet
+>>>>>>> edbc5840eb2ba0b1a0a4da1ad17a61834c23b3ec
