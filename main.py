@@ -31,9 +31,9 @@ def garis():
 def print_header(text):
     clear()
     cover()
-    print("="*tw)
+    garis()
     print(f"{text}".center(tw))
-    print("="*tw)
+    garis()
 
 def login():
     while True:
@@ -77,11 +77,6 @@ def login():
         else:
             print("Menu tidak valid!")
 
-def print_header(text):
-    clear()
-    print("=" * 50)
-    print(text.center(50))
-    print("=" * 50)
 
 def create_seat_map(rows=12, columns='ABCDEF'):
     seats = {}
@@ -136,7 +131,8 @@ def menu_admin():
         "2. Kelola Jadwal Pesawat",
         "3. Lihat Laporan",
         "4. Tambah Menu Makanan",
-        "5. Logout",
+        "5. Update Status",
+        "6. Logout",
         ]
         for item in menu:
             print(item.center(tw))       
@@ -153,12 +149,50 @@ def menu_admin():
             elif masukkan == 4:
                 tambah_menu_makanan()
             elif masukkan == 5:
+                update_status()
+            elif masukkan == 6:
                 break
             else:
                 print("Pilihan yang anda masukkan tidak ada.")
         except ValueError:
             print("Input tidak valid! Masukkan angka sesuai pilihan menu.")
 
+def update_status():
+    cover()
+    garis()
+    print("UPDATE STATUS".center(tw))
+    garis()
+
+    data = []
+
+    with open("jadwal_pesawat.csv", mode='r') as f:
+        reader = csv.DictReader(f, fieldnames=['KODE', 'AIRLINES', 'TIME', 'PRICE','STATUS'])
+        for row in reader:
+            data.append(row)
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    for line in tabel.split('\n'):
+        print(line.center(tw))
+    
+    kode = input("Masukkan Kode Penerbangan: ")
+    status = input("Masukkan Status: ")
+
+    indeks = 0
+    for item in data:
+        if (item['KODE'] == kode):
+            data[indeks]['STATUS'] = status
+        indeks = indeks + 1
+    
+    with open('jadwal_pesawat.csv', mode='w', newline='') as f:
+
+        writer = csv.DictWriter(f, fieldnames=['KODE', 'AIRLINES', 'TIME', 'PRICE','STATUS'])
+        writer.writeheader()
+        for new_data in data:
+            writer.writerow({'KODE': new_data['KODE'], 'AIRLINES': new_data['AIRLINES'], 'TIME': new_data['TIME'], 'PRICE': new_data['PRICE'], 'STATUS':new_data['STATUS']}) 
+
+    with open('jadwal_pesawat.csv', 'w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=['KODE', 'AIRLINES', 'TIME', 'PRICE','STATUS'])
+        writer.writeheader()
+        writer.writerows(data)
 def klola_data():
     while True:
         print_header("EDIT JADWAL PENERBANGAN")
@@ -188,11 +222,11 @@ def klola_data():
             
         elif pilihan == '2':
             tampilkan_jadwal()
-            no = input("\nMasukkan nomor jadwal yang akan diedit: ")
+            kode = input("\nMasukkan nomor jadwal yang akan diedit: ")
             jadwal = load_jadwal()
             
             for row in jadwal:
-                if row['NO'] == no:
+                if row['KODE'] == kode:
                     row['AIRLINES'] = input("Masukkan nama maskapai baru: ")
                     row['TIME'] = input("Masukkan waktu baru (HH.MM - HH.MM): ")
                     while True:
@@ -204,7 +238,7 @@ def klola_data():
                     break
             
             with open('jadwal_pesawat.csv', 'w', newline='') as file:
-                writer = csv.DictWriter(file, fieldnames=['NO', 'AIRLINES', 'TIME', 'PRICE'])
+                writer = csv.DictWriter(file, fieldnames=['KODE', 'AIRLINES', 'TIME', 'PRICE'])
                 writer.writeheader()
                 writer.writerows(jadwal)
             print("\nJadwal berhasil diubah!")
@@ -228,10 +262,10 @@ def update_delay():
         fieldnames = reader.fieldnames
         data = list(reader)
 
-    if "Alasan" not in fieldnames:
-        data.append("Alasan")
-        for row in data:
-            row["Alasan"] = ""
+    # if "Alasan" not in fieldnames:
+    #     data.append("Alasan")
+    #     for row in data:
+    #         row['Alasan'] = ""
 
     # Menampilkan data pemesanan
     if not data:
@@ -263,15 +297,11 @@ def update_delay():
     print(tabulate([pemesanan], headers='keys', tablefmt='fancy_grid'))
 
     # Konfirmasi delay
-    konfirmasi = input("\nDelay penerbangan? (ya/tidak): ").strip().lower()
-    if konfirmasi == 'ya':
-        alasan = input("Masukkan alasan delay: ")
-        waktu_baru = input("Masukkan waktu baru (HH.MM - HH.MM): ")
+    konfirmasi = input("\nDelay penerbangan? (y/n): ").strip().lower()
+    if konfirmasi == 'y':
 
         # Update status delay
         pemesanan['Status'] = 'Delay'
-        pemesanan['Waktu'] = waktu_baru
-        pemesanan['Alasan'] = alasan
 
         # Menulis ulang file CSV
         with open('riwayat_pemesanan.csv', 'w', newline='') as file:
@@ -434,9 +464,11 @@ def pemesanan_tiket():
     jadwal = load_jadwal()
     while True:
         try:
-            no_pesawat = input("Pilih nomor penerbangan: ")
-            pesawat = next((p for p in jadwal if p['NO'] == no_pesawat), None)
-            if pesawat:
+            no_pesawat = input("Pilih kode penerbangan: ")
+            pesawat = next((p for p in jadwal if p['KODE'] == no_pesawat), None)
+            if 'Aktif' not in pesawat:
+                print('Pesawat tidak aktif!')
+            elif pesawat:
                 break
             print("Nomor penerbangan tidak valid!")
         except ValueError:
@@ -514,6 +546,7 @@ def pemesanan_tiket():
     print(f"Maskapai             : {pesawat['AIRLINES']}")
     print(f"Waktu                : {pesawat['TIME']}")
     print(f"Jumlah Penumpang     : {jumlah_penumpang}")
+    print(f"Kursi                : {pesanan}")
     print(f"Total Harga          : Rp {total_harga:,}")
     print(f"Metode Pembayaran    : {metode}")
     print("\nTerima kasih telah memesan!")
@@ -662,7 +695,7 @@ def reschedule_user():
 
     while True:
         no_jadwalbaru = input("\nPilih nomor penerbangan baru: ").strip()
-        penerbangan_baru = next((row for row in jadwal if row['NO'] == no_jadwalbaru), None)
+        penerbangan_baru = next((row for row in jadwal if row['KODE'] == no_jadwalbaru), None)
         if penerbangan_baru:
             # Cek apakah jadwal baru sama dengan jadwal lama
             if (penerbangan_baru['AIRLINES'] == pemesanan['Maskapai'] and
