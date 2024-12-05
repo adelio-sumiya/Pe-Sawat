@@ -5,8 +5,6 @@ import time
 import pandas as pd
 from tabulate import tabulate
 
-
-
 # ============================ fungsi tambahan ============================
 tw = os.get_terminal_size().columns
 def clear():
@@ -240,21 +238,35 @@ def lihat_laporan():
     df = pd.read_csv('riwayat_pemesanan.csv')
     
     # Ringkasan total pemesanan
-    total_pemesanan = df['Total'].sum()
+    total_pemesanan = df['Total Harga'].sum()
     total_penumpang = df['Jumlah Penumpang'].sum()
     
     # Kelompokkan berdasarkan maskapai
-    laporan_maskapai = df.groupby('Airlines').agg({
-        'Total': 'sum',
+    laporan_maskapai = df.groupby('Maskapai').agg({
+        'Total Harga': 'sum',
         'Jumlah Penumpang': 'sum'
     }).reset_index()
     
     print_header('TOTAL PEMASUKAN')
+    print(tabulate(laporan_maskapai, headers='keys', tablefmt='fancy_grid', showindex=range(1, len(laporan_maskapai)+1)))
     print(f"Total Pendapatan: Rp {total_pemesanan:,}")
-    print(f"Total Penumpang: {total_penumpang}")
-    print_header("Rincian per Maskapai:")
-    tengah(laporan_maskapai)
+    print(f"Total Penumpang : {total_penumpang}")
+    print("\nRincian pemasukan :")
 
+def tambah_menu_makanan():
+    print_header("TAMBAH MENU MAKANAN")
+    try:
+        makanan = input("Masukkan Nama Makanan: ")
+        harga = input("Masukkan Harga Makanan: ")
+        
+        with open('Menu_makanan.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([makanan, harga])
+        
+        print("\nMenu makanan berhasil ditambahkan!")
+    except Exception as e:
+        print(f"Terjadi kesalahan: {e}")
+        
 # ============================ user ============================
 def menu_user():
     clear()
@@ -435,22 +447,23 @@ def pemesanan_tiket():
     input("\nTekan Enter untuk kembali ke menu...")
 
 def booking_makanan():
-    clear()
-    cover()
-    print_header('BOOKING MAKANAN')
-    tengah('1. Pesan Makanan')
-    tengah('2. Lihat Pesanan')
-    tengah('3. Lihat Menu')
     while True:
+        clear()
+        cover()
+        print_header('BOOKING MAKANAN')
+        tengah('1. Pesan Makanan')
+        tengah('2. Lihat Pesanan')
+        tengah('3. Lihat Menu')
         try:
-            pilihan = input('masukkan pilihan : ')
+            pilihan = int(input('masukkan pilihan : '))
             if pilihan == 1:
                 pesan_makanan()
             elif pilihan == 2:
-                # lihat_pesanan()
-                pass
+                lihat_pesanan()
             elif pilihan == 3:
                 lihat_menu_makanan()
+            elif pilihan == 4:
+                hapus_pesanan_makanan()
 
         except:
             input('piihan tidak valid!')
@@ -470,8 +483,8 @@ def pesan_makanan():
     pesanan_makanan = []
     Pemesan = input('Masukkan nama anda : ')
     while True:
-        pilihan = input("Masukkan ID makanan (ketik 'selesai' untuk mengakhiri): ")
-        if pilihan.lower() == 'selesai':
+        pilihan = input("Masukkan ID makanan (ketik 'y' untuk mengakhiri): ")
+        if pilihan.lower() == 'y':
             break
         
         makanan = next((item for item in menu_makanan if item['ID'] == pilihan), None)
@@ -482,7 +495,7 @@ def pesan_makanan():
     
     total_harga_makanan = sum(int(item['Harga']) for item in pesanan_makanan)
     with open('pesanan_makanan_user.csv', 'w') as file:
-        fieldnames = ['Pemesan','ID', 'Nama', 'Harga', 'total_harga_makanan']
+        fieldnames = ['pemesan','ID', 'Nama', 'Harga', 'total_harga_makanan']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writerows(pesanan_makanan)
     return pesanan_makanan, total_harga_makanan
@@ -495,6 +508,8 @@ def lihat_pesanan():
         tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
         for line in tabel.split('\n'):
             print(line.center(tw))
+    time.sleep(2)
+    input('Tekan enter untuk melanjutkan...')
 
 def lihat_menu_makanan():
     data = []
@@ -505,8 +520,15 @@ def lihat_menu_makanan():
     for line in tabel.split('\n'):
         print(line.center(tw))
     time.sleep(2)
-    input('tekan enter untuk melanjutkan...')
-        
+    input('tekan enter untuk melanjutkan...')      
+
+def hapus_pesanan_makanan():
+    data = []
+    with open('pesanan_makanan_user.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+    print(data)
 
 def riwayat():
     clear()
@@ -625,7 +647,6 @@ def reschedule_user():
     print("\nReschedule berhasil dilakukan!")
     input("\nTekan Enter untuk kembali...")
 
-
 def batalkan_tiket():
     print_header("PEMBATALAN TIKET")
     riwayat()
@@ -682,8 +703,8 @@ def batalkan_tiket():
 
     
 def main():
+    # hapus_pesanan_makanan()
     login()
-
 
 if __name__ == "__main__":
     main()
