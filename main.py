@@ -567,6 +567,7 @@ def booking_makanan():
         tengah('1. Pesan Makanan')
         tengah('2. Lihat Pesanan')
         tengah('3. Lihat Menu')
+        tengah('4. Kembali')
         try:
             pilihan = int(input('masukkan pilihan : '))
             if pilihan == 1:
@@ -576,7 +577,7 @@ def booking_makanan():
             elif pilihan == 3:
                 lihat_menu_makanan()
             elif pilihan == 4:
-                hapus_pesanan_makanan()
+                return
 
         except:
             input('piihan tidak valid!')
@@ -585,63 +586,165 @@ def pesan_makanan():
     clear()
     cover()
     menu_makanan = []
-    with open('menu_makanan.csv', 'r') as file:
+    
+    with open('Menu_makanan.csv', 'r') as file:
         reader = csv.DictReader(file)
         menu_makanan = list(reader)
     
     print_header("MENU MAKANAN")
-    for item in menu_makanan:
-        print(f"{item['ID']}. {item['Nama']} - Rp{item['Harga']}")
-    
+
     pesanan_makanan = []
     Pemesan = input('Masukkan nama anda : ')
+    clear()
+    cover()
+    
+    print_header("MENU MAKANAN")
+
+    tabel = tabulate(menu_makanan, headers="keys", tablefmt="fancy_grid")
+    for line in tabel.split('\n'):
+        print(line.center(tw)) 
+    
     while True:
-        pilihan = input("Masukkan ID makanan (ketik 'y' untuk mengakhiri): ") # dikasih pilihan berapa banyak 
-        if pilihan.lower() == 'y':
-            break
+        pilihan = input("Masukkan ID makanan: ")
         
         makanan = next((item for item in menu_makanan if item['ID'] == pilihan), None)
         if makanan:
-            pesanan_makanan.append(makanan)
+            jumlah = int(input(f"Masukkan jumlah pesanan untuk {makanan['Nama']} : "))
+            total_harga_makanan = int(makanan['Harga']) * jumlah
+
+            pesanan_makanan.append({
+                'Nama': Pemesan,
+                'Makanan': makanan['Nama'],
+                'Jumlah': jumlah,
+                'Harga': makanan['Harga'],
+                'Total Harga Makanan': total_harga_makanan,
+                'Metode': ''  
+            })
         else:
             print("Makanan tidak ditemukan!")
-    
-    total_harga_makanan = sum(int(item['Harga']) for item in pesanan_makanan)
-    with open('pesanan_makanan_user.csv', 'w') as file:
-        fieldnames = ['pemesan','ID', 'Nama', 'Harga', 'total_harga_makanan']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writerows(pesanan_makanan) # tambahkan total, tanggal, nama
-    return pesanan_makanan, total_harga_makanan
 
-def lihat_pesanan():
-    data = []
-    with open('pesanan_makanan_user.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        data = list(reader)
-        tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
-        for line in tabel.split('\n'):
-            print(line.center(tw))
-    time.sleep(2)
-    input('Tekan enter untuk melanjutkan...')
+        lanjut = input("Apakah Anda ingin menambah pesanan? (ya/tidak): ").lower()
+        if lanjut == 'tidak':  
+            break
+
+    total_harga = sum(item['Total Harga Makanan'] for item in pesanan_makanan)
+
+    metode_pembayaran = ['Transfer', 'Kartu Kredit', 'E-wallet']
+    print("\nPilih metode pembayaran:")
+    for i, metode in enumerate(metode_pembayaran, 1):
+        print(f"{i}. {metode}")
+
+    while True:
+        try:
+            pilihan = int(input("Pilih metode pembayaran: "))
+            if 1 <= pilihan <= 3:
+                metode = metode_pembayaran[pilihan-1]
+                break
+        except ValueError:
+            pass
+        print("Pilihan tidak valid!")
+
+    for item in pesanan_makanan:
+        item['Metode'] = metode
+    clear()
+    cover()
+    
+    print_header("MENU MAKANAN")
+
+    # Menulis ke file CSV tanpa kolom "Nomor"
+    with open('pesanan_makanan_user.csv', 'a', newline='') as file:
+        fieldnames = ['Nama', 'Makanan', 'Jumlah', 'Harga', 'Total Harga Makanan', 'Metode']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writerows(pesanan_makanan)
+    
+    print("Struk Pemesanan: ".center(tw))
+    print(f"Nama Pemesan            : {Pemesan}".center(tw))
+    for item in pesanan_makanan:
+        print(f"{item['Makanan']} x {item['Jumlah']} = Rp {item['Total Harga Makanan']:,}".center(tw))
+
+    print(f"Total Harga          : Rp {total_harga:,}".center(tw))
+    print(f"Metode Pembayaran    : {metode}".center(tw))
+    print("\nTerima kasih telah memesan!")
+
+    input("\nTekan Enter untuk kembali ke menu...")
+
 
 def lihat_menu_makanan():
     data = []
     with open('Menu_makanan.csv', 'r') as file:
         reader = csv.DictReader(file)
-        data = list(reader)
+        for row in reader:
+            data.append(row)
     tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
     for line in tabel.split('\n'):
         print(line.center(tw))
-    time.sleep(2)
-    input('tekan enter untuk melanjutkan...')      
+    input('tekan enter untuk melanjutkan...')   
 
-def hapus_pesanan_makanan():
+def lihat_pesanan():
+    clear()
+    cover()
+    print_header('MAKANAN DAN MINUMAN YANG ANDA PESAN')
+    
     data = []
-    with open('pesanan_makanan_user.csv', 'r') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            data.append(row)
-    print(data)
+    try:
+        with open('pesanan_makanan_user.csv', 'r') as file:
+            reader = csv.DictReader(file)
+            data = list(reader)
+    except FileNotFoundError:
+        print("Tidak ada data pesanan yang ditemukan!")
+        input("Tekan Enter untuk kembali...")
+        return
+    
+    if not data:
+        print("Tidak ada data pesanan yang ditemukan!")
+        input("Tekan Enter untuk kembali...")
+        return
+
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    for line in tabel.split('\n'):
+        print(line.center(tw))
+
+    while True:
+        print("\nPilih opsi:")
+        print("1. Hapus riwayat")
+        print("2. Kembali")
+        
+        try:
+            pilihan = int(input("Masukkan pilihan: "))
+            if pilihan == 1:
+                hapus_pesanan_nama(data)
+                break
+            elif pilihan == 2:
+                return
+            else:
+                print("Pilihan tidak valid!")
+        except ValueError:
+            print("Input harus berupa angka!")
+
+def hapus_pesanan_nama(data):
+    clear()
+    cover()
+    print_header("HAPUS RIWAYAT PESANAN")
+    
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    for line in tabel.split('\n'):
+        print(line.center(tw))
+    
+    nama_hapus = input("\nMasukkan nama yang ingin dihapus: ").strip()
+    
+    data_baru = [row for row in data if row['Nama'] != nama_hapus]
+
+    if len(data_baru) == len(data):
+        print("\nNama tidak ditemukan di daftar pesanan!")
+        return
+
+    with open('pesanan_makanan_user.csv', 'w', newline='') as file:
+        fieldnames = ['Nama', 'Makanan', 'Jumlah', 'Harga', 'Total Harga Makanan', 'Metode']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data_baru)
+
+    print("\nPesanan berhasil dihapus!")
 
 def riwayat():
     clear()
