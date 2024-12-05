@@ -325,8 +325,7 @@ def tampilkan_jadwal():
     tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
     for line in tabel.split('\n'):
         print(line.center(tw))
- 
-    
+     
 def pemesanan_tiket():
     print_header("PEMESANAN TIKET")
     
@@ -460,8 +459,7 @@ def booking_makanan():
                 # lihat_pesanan()
                 pass
             elif pilihan == 3:
-                # lihat_menu_makanan():
-                pass
+                lihat_menu_makanan()
 
         except:
             input('piihan tidak valid!')
@@ -498,6 +496,19 @@ def pesan_makanan():
         writer.writerows(pesanan_makanan)
     return pesanan_makanan, total_harga_makanan
 
+# def lihat_pesanan():
+#     with open(menu)
+
+def lihat_menu_makanan():
+    data = []
+    with open('Menu_makanan.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        data = list(reader)
+    tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+    tengah(tabel)
+    time.sleep(2)
+    input('tekan enter untuk melanjutkan...')
+        
 
 def riwayat():
     clear()
