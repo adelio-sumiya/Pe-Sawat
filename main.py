@@ -77,6 +77,56 @@ def login():
         else:
             print("Menu tidak valid!")
 
+def print_header(text):
+    clear()
+    print("=" * 50)
+    print(text.center(50))
+    print("=" * 50)
+
+def create_seat_map(rows=12, columns='ABCDEF'):
+    seats = {}
+    for row in range(1, rows + 1):
+        for col in columns:
+            seat_label = f"{row}{col}"
+            seats[seat_label] = {
+                'occupied': False,
+                'passenger': None,
+                'type': get_seat_type(row, col)
+            }
+    return seats
+
+def get_seat_type(row, column):
+    if column in 'AF':
+        return 'window'
+    elif column in 'BC' or column in 'DE':
+        return 'middle' if column in 'CD' else 'aisle'
+    return 'unknown'
+
+def book_seat(seats, seat_label, passenger_name):
+    if seat_label in seats:
+        if not seats[seat_label]['occupied']:
+            seats[seat_label]['occupied'] = True
+            seats[seat_label]['passenger'] = passenger_name
+            return True
+    return False
+
+def print_seat_map(seats, columns):
+    print("   " + " ".join(columns))
+    for row in range(1, 13):  # Assuming 12 rows
+        seat_status = [
+            'X' if seats[f"{row}{col}"]['occupied'] else 'O' 
+            for col in columns
+        ]
+        print(f"{row:2d} {' '.join(seat_status)}")
+
+def check_booked_seats():
+    booked_seats = []
+    with open('riwayat_pemesanan.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            booked_seats.append(row['Kursi'])
+    return booked_seats
+
 # ============================ admin ============================
 def menu_admin():
     while True:
@@ -179,7 +229,7 @@ def update_delay():
         data = list(reader)
 
     if "Alasan" not in fieldnames:
-        fieldnames.append("Alasan")
+        data.append("Alasan")
         for row in data:
             row["Alasan"] = ""
 
@@ -240,20 +290,20 @@ def lihat_laporan():
     df = pd.read_csv('riwayat_pemesanan.csv')
     
     # Ringkasan total pemesanan
-    total_pemesanan = df['Total Harga'].sum()
-    total_penumpang = df['Jumlah Penumpang'].sum()
+    total_pemesanan = df['Total'].sum()
+    total_penumpang = df['Jumlah'].sum()
     
     # Kelompokkan berdasarkan maskapai
     laporan_maskapai = df.groupby('Maskapai').agg({
-        'Total Harga': 'sum',
-        'Jumlah Penumpang': 'sum'
+        'Total': 'sum',
+        'Jumlah': 'sum'
     }).reset_index()
     
     print_header('TOTAL PEMASUKAN')
     print(tabulate(laporan_maskapai, headers='keys', tablefmt='fancy_grid', showindex=range(1, len(laporan_maskapai)+1)))
+    print("\nRincian pemasukan :")
     print(f"Total Pendapatan: Rp {total_pemesanan:,}")
     print(f"Total Penumpang : {total_penumpang}")
-    print("\nRincian pemasukan :")
 
 def tambah_menu_makanan():
     print_header("TAMBAH MENU MAKANAN")
@@ -268,6 +318,7 @@ def tambah_menu_makanan():
         print("\nMenu makanan berhasil ditambahkan!")
     except Exception as e:
         print(f"Terjadi kesalahan: {e}")
+
 
 # ============================ user ============================
 def menu_user():
@@ -401,6 +452,33 @@ def pemesanan_tiket():
         except ValueError:
             print("Input tidak valid!")
     
+    # Membuat peta kursi
+    columns = 'ABCDEF'
+    seats = create_seat_map()
+    booked_seats = check_booked_seats()
+
+    # Menandai kursi yang sudah dipesan
+    for seat in booked_seats:
+        if seat in seats:
+            seats[seat]['occupied'] = True
+
+    # Menampilkan peta kursi
+    print_seat_map(seats, columns)
+
+    # Memesan kursi sesuai jumlah penumpang
+    pesanan = []
+    for _ in range(jumlah_penumpang):
+        while True:
+            seat_label = input("Pilih kursi (contoh: '1A'): ").strip().upper()
+            if seat_label in seats and not seats[seat_label]['occupied']:
+                book_seat(seats, seat_label, nama)
+                print(f"Kursi {seat_label} berhasil dipesan untuk {nama}.")
+                pesanan.append(seat_label)
+                break
+            else:
+                print("Kursi sudah dipesan atau tidak valid. Silakan pilih kursi lain.")
+
+
     # hitung total harga
     total_harga = int(pesawat['PRICE']) * jumlah_penumpang
     print(f"\nTotal harga: Rp {total_harga:,}")
@@ -420,7 +498,7 @@ def pemesanan_tiket():
         except ValueError:
             pass
         print("Pilihan tidak valid!")
-        
+    
     # Generate nomor pemesanan
     with open('riwayat_pemesanan.csv', 'r') as file:
         reader = csv.reader(file)
@@ -429,22 +507,22 @@ def pemesanan_tiket():
 
     # cetak struk
     print_header("STRUK PEMBAYARAN")
-    print(f"Tanggal Pemesanan    : {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}".center(tw))
-    print(f"Nama Pemesan         : {nama}".center(tw))
-    print(f"Tanggal Keberangkatan: {tanggal}".center(tw))
-    print(f"Rute Penerbangan    : {departure} -> {arrival}".center(tw))
-    print(f"Maskapai            : {pesawat['AIRLINES']}".center(tw))
-    print(f"Waktu               : {pesawat['TIME']}".center(tw))
-    print(f"Jumlah Penumpang    : {jumlah_penumpang}".center(tw))
-    print(f"Total Harga         : Rp {total_harga:,}".center(tw))
-    print(f"Metode Pembayaran   : {metode}".center(tw))
+    print(f"Tanggal Pemesanan    : {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    print(f"Nama Pemesan         : {nama}")
+    print(f"Tanggal Keberangkatan: {tanggal}")
+    print(f"Rute Penerbangan     : {departure} -> {arrival}")
+    print(f"Maskapai             : {pesawat['AIRLINES']}")
+    print(f"Waktu                : {pesawat['TIME']}")
+    print(f"Jumlah Penumpang     : {jumlah_penumpang}")
+    print(f"Total Harga          : Rp {total_harga:,}")
+    print(f"Metode Pembayaran    : {metode}")
     print("\nTerima kasih telah memesan!")
     
     # simpan ke riwayat
     with open('riwayat_pemesanan.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([no, tanggal, nama, departure, arrival, pesawat['AIRLINES'], 
-                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, "Aktif"])
+                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, "Aktif", pesanan])
     
     input("\nTekan Enter untuk kembali ke menu...")
 
@@ -485,7 +563,7 @@ def pesan_makanan():
     pesanan_makanan = []
     Pemesan = input('Masukkan nama anda : ')
     while True:
-        pilihan = input("Masukkan ID makanan (ketik 'y' untuk mengakhiri): ")
+        pilihan = input("Masukkan ID makanan (ketik 'y' untuk mengakhiri): ") # dikasih pilihan berapa banyak 
         if pilihan.lower() == 'y':
             break
         
@@ -499,7 +577,7 @@ def pesan_makanan():
     with open('pesanan_makanan_user.csv', 'w') as file:
         fieldnames = ['pemesan','ID', 'Nama', 'Harga', 'total_harga_makanan']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writerows(pesanan_makanan)
+        writer.writerows(pesanan_makanan) # tambahkan total, tanggal, nama
     return pesanan_makanan, total_harga_makanan
 
 def lihat_pesanan():
@@ -694,7 +772,7 @@ def batalkan_tiket():
     # Simpan perubahan ke file
     with open('riwayat_pemesanan.csv', 'w', newline='') as file:
         fieldnames = ['No', 'Tanggal', 'Nama', 'Departure', 'Arrival', 
-                      'Maskapai', 'Waktu', 'Jumlah Penumpang', 'Total Harga', 'Metode', 'Status']
+                      'Maskapai', 'Waktu', 'Jumlah Penumpang', 'Total', 'Metode', 'Status']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data) 
@@ -702,11 +780,16 @@ def batalkan_tiket():
     riwayat()
     input("\nTekan Enter untuk kembali...")
 
+def info_delay():
+    pass
 
     
 def main():
-    # hapus_pesanan_makanan()
+    # hapus_pesanan_makana()
     login()
 
 if __name__ == "__main__":
     main()
+
+
+    

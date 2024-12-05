@@ -1,7 +1,1 @@
-No,Tanggal,Nama,Departure,Arrival,Maskapai,Waktu,Jumlah Penumpang,Total Harga,Metode,Status
-1,14/12/2024,ofi,Jakarta,Makassar,GARUDA,16.00 - 18.00,3,3775800,Kartu Kredit,Aktif
-2,14/12/2024,ofi,Jakarta,Makassar,GARUDA,12.00 - 13.00,3,3775800,Kartu Kredit,Aktif
-3,14/12/2024,ofi,Jakarta,Makassar,GARUDA,16.00 - 18.00,3,3775800,Kartu Kredit,Aktif
-4,17/12/2024,rofi,Surabaya,Denpasar,BATIK AIR,07.55 - 09.45,2,1164600,Transfer,Aktif
-5,18/12/2024,rawr,Jakarta,Denpasar,BATIK AIR,12.55 - 14.55,2,1215200,Kartu Kredit,Aktif
-6,17/12/2024,rofiqoh,Jakarta,Denpasar,GARUDA,15.25 - 17.25,1,832400,Transfer,Aktif
+No,Tanggal,Nama,Departure,Arrival,Maskapai,Waktu,Jumlah,Total,Metode,Status,Kursi
