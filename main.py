@@ -85,7 +85,8 @@ def menu_admin():
         "1. Lihat Jadwal Pesawat",
         "2. Kelola Jadwal Pesawat",
         "3. Lihat Laporan",
-        "4. Logout",
+        "4. Tambah Menu Makanan",
+        "5. Logout",
         ]
         for item in menu:
             print(item.center(tw))       
@@ -100,7 +101,8 @@ def menu_admin():
                 lihat_laporan()
                 input("\nTekan Enter untuk melanjutkan...")
             elif masukkan == 4:
-                login()
+                tambah_menu_makanan()
+            elif masukkan == 5:
                 break
             else:
                 print("Pilihan yang anda masukkan tidak ada.")
@@ -266,7 +268,7 @@ def tambah_menu_makanan():
         print("\nMenu makanan berhasil ditambahkan!")
     except Exception as e:
         print(f"Terjadi kesalahan: {e}")
-        
+
 # ============================ user ============================
 def menu_user():
     clear()
