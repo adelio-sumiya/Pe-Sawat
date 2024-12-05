@@ -12,8 +12,6 @@ tw = os.get_terminal_size().columns
 def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-tw = os.get_terminal_size().columns
-
 def tengah(text, b=tw):
     print(f'{text}'.center(b))
 
@@ -29,7 +27,6 @@ def cover():
     tengah("8 8888         8 8888        `8b.  ;8.`8888 .888888888. `88888. `8.`8' `8,`' .888888888. `88888.  8 8888      ") 
     tengah("8 8888         8 888888888888 `Y8888P ,88P'.8'       `8. `88888. `8.`   `8' .8'       `8. `88888. 8 8888      ") 
 
-
 def garis():
     print('='*tw)
 
@@ -39,7 +36,6 @@ def print_header(text):
     print("="*tw)
     print(f"{text}".center(tw))
     print("="*tw)
-
 
 def login():
     while True:
@@ -82,7 +78,6 @@ def login():
             break
         else:
             print("Menu tidak valid!")
-
 
 # ============================ admin ============================
 def menu_admin():
@@ -171,7 +166,6 @@ def klola_data():
         
         input("\nTekan Enter untuk melanjutkan...")
 
-
 def update_delay():
     clear()
     cover()
@@ -241,7 +235,6 @@ def update_delay():
 
     input("\nTekan Enter untuk kembali...")
 
-
 def lihat_laporan():
         # Baca riwayat pemesanan
     df = pd.read_csv('riwayat_pemesanan.csv')
@@ -261,7 +254,6 @@ def lihat_laporan():
     print(f"Total Penumpang: {total_penumpang}")
     print_header("Rincian per Maskapai:")
     tengah(laporan_maskapai)
-
 
 # ============================ user ============================
 def menu_user():
@@ -312,7 +304,6 @@ def load_jadwal():
             jadwal.append(row)
     return jadwal
 
-    
 def tampilkan_jadwal():
     clear()
     cover()
@@ -496,8 +487,14 @@ def pesan_makanan():
         writer.writerows(pesanan_makanan)
     return pesanan_makanan, total_harga_makanan
 
-# def lihat_pesanan():
-#     with open(menu)
+def lihat_pesanan():
+    data = []
+    with open('pesanan_makanan_user.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        data = list(reader)
+        tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
+        for line in tabel.split('\n'):
+            print(line.center(tw))
 
 def lihat_menu_makanan():
     data = []
@@ -505,7 +502,8 @@ def lihat_menu_makanan():
         reader = csv.DictReader(file)
         data = list(reader)
     tabel = tabulate(data, headers='keys', tablefmt='fancy_grid')
-    tengah(tabel)
+    for line in tabel.split('\n'):
+        print(line.center(tw))
     time.sleep(2)
     input('tekan enter untuk melanjutkan...')
         
