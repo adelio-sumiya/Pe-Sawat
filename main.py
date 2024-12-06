@@ -466,9 +466,7 @@ def pemesanan_tiket():
         try:
             no_pesawat = input("Pilih kode penerbangan: ")
             pesawat = next((p for p in jadwal if p['KODE'] == no_pesawat), None)
-            if 'Aktif' not in pesawat:
-                print('Pesawat tidak aktif!')
-            elif pesawat:
+            if pesawat:
                 break
             print("Nomor penerbangan tidak valid!")
         except ValueError:
@@ -668,7 +666,6 @@ def pesan_makanan():
 
     input("\nTekan Enter untuk kembali ke menu...")
 
-
 def lihat_menu_makanan():
     data = []
     with open('Menu_makanan.csv', 'r') as file:
@@ -744,7 +741,7 @@ def hapus_pesanan_nama(data):
         writer.writeheader()
         writer.writerows(data_baru)
 
-    print("\nPesanan berhasil dihapus!")
+    input("\nPesanan berhasil dihapus!")
 
 def riwayat():
     clear()
@@ -781,9 +778,11 @@ def reschedule_user():
     pemesanan = next((row for row in data if row['No'] == no_pemesanan), None)
     if not pemesanan:
         print("\nNomor pemesanan tidak ditemukan!")
-    
+        input("\nTekan Enter untuk kembali...")
+        return
+
     if pemesanan['Status'] == 'Dibatalkan':
-        print("\nReschedule tidak dapat dilakukan Karena status tiket sudah dibatalkan.")
+        print("\nReschedule tidak dapat dilakukan karena status tiket sudah dibatalkan.")
         input("\nTekan Enter untuk kembali...")
         return
 
@@ -819,9 +818,9 @@ def reschedule_user():
             print("Input tidak valid!")
 
     # Hitung perbedaan harga
-    harga_lama = int(pemesanan['Total Harga'])
-    harga_barusatutiket = int(penerbangan_baru['PRICE'])
-    total_hargabaru = harga_barusatutiket * jumlah_penumpangnew
+    harga_lama = int(pemesanan['Total'])
+    harga_baru = int(penerbangan_baru['PRICE'])
+    total_hargabaru = harga_baru * jumlah_penumpangnew
 
     selisih = total_hargabaru - harga_lama
     if selisih > 0:
@@ -849,20 +848,24 @@ def reschedule_user():
     pemesanan['Tanggal'] = input("\nMasukkan tanggal keberangkatan baru (DD/MM/YYYY): ").strip()
     pemesanan['Maskapai'] = penerbangan_baru['AIRLINES']
     pemesanan['Waktu'] = penerbangan_baru['TIME']
-    pemesanan['Jumlah Penumpang'] = jumlah_penumpangnew
-    pemesanan['Total Harga'] = total_hargabaru
+    pemesanan['Jumlah'] = jumlah_penumpangnew
+    pemesanan['Total'] = total_hargabaru
 
     # Simpan perubahan kembali ke file CSV
     with open('riwayat_pemesanan.csv', 'w', newline='') as file:
         fieldnames = ['No', 'Tanggal', 'Nama', 'Departure', 'Arrival', 
-                      'Maskapai', 'Waktu', 'Jumlah Penumpang', 'Total Harga', 'Metode', 'Status']
+                      'Maskapai', 'Waktu', 'Jumlah', 'Total', 'Status']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data)
+        for row in data:
+            if row['No'] == no_pemesanan:
+                writer.writerow(pemesanan)
+            else:
+                writer.writerow(row)
 
     print("\nReschedule berhasil dilakukan!")
     input("\nTekan Enter untuk kembali...")
-
+    
 def batalkan_tiket():
     print_header("PEMBATALAN TIKET")
     riwayat()
@@ -908,7 +911,7 @@ def batalkan_tiket():
     # Simpan perubahan ke file
     with open('riwayat_pemesanan.csv', 'w', newline='') as file:
         fieldnames = ['No', 'Tanggal', 'Nama', 'Departure', 'Arrival', 
-                      'Maskapai', 'Waktu', 'Jumlah Penumpang', 'Total', 'Metode', 'Status']
+                      'Maskapai', 'Waktu', 'Jumlah', 'Total', 'Metode', 'Status']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data) 
