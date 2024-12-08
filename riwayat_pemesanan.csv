@@ -1,1 +1,3 @@
-No,Tanggal,Nama,Departure,Arrival,Maskapai,Waktu,Jumlah,Total,Status
+No,Tanggal,Nama,Departure,Arrival,Maskapai,Waktu,Jumlah,Total,Metode,Status,Kursi
+1,23/12/2024,adelio,Jakarta,Makassar,GARUDA,15.25 - 17.25,1,832400,Refund,Aktif,"['1A', '1B']"
+2,22/09/2025,adelio,Jakarta,Makassar,LION AIR,22:30 - 23.30,4,600000,E-wallet,Aktif,"['1A', '1B', '1C', '1D']"
