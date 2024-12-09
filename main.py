@@ -140,7 +140,10 @@ def check_booked_seats():
     with open('riwayat_pemesanan.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            booked_seats.append(row['Kursi'])
+            # Asumsikan kolom 'Kursi' berisi string yang dipisahkan koma
+            if 'Kursi' in row and row['Kursi']:  # Pastikan kolom 'Kursi' ada dan tidak kosong
+                # Memisahkan kursi yang dipesan dan menambahkannya ke list
+                booked_seats.extend(row['Kursi'].split(', '))  # Memisahkan berdasarkan koma
     return booked_seats
 
 # ============================ admin ============================
@@ -361,18 +364,34 @@ def lihat_laporan():
 
 def tambah_menu_makanan():
     print_header("TAMBAH MENU MAKANAN")
-    try:
-        makanan = input("Masukkan Nama Makanan: ")
-        harga = input("Masukkan Harga Makanan: ")
-        
-        with open('Menu_makanan.csv', 'a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([makanan, harga])
-        
-        print("\nMenu makanan berhasil ditambahkan!")
-    except Exception as e:
-        print(f"Terjadi kesalahan: {e}")
-
+    data = []
+    
+    while True:
+        try:
+            with open('Menu_makanan.csv', 'r', newline='') as file:
+                reader = csv.DictReader(file)
+                data = list(reader)  
+            
+            
+            tabel = tabulate(data, headers="keys", tablefmt="fancy_grid")
+            for line in tabel.split('\n'):
+                print(line.center(tw)) 
+            
+            makanan = input("Masukkan Nama Makanan: ").strip() 
+            harga = input("Masukkan Harga Makanan: ").strip()  
+            idmakanan = len(data) + 1
+            if not any(makanan.lower() == row['Nama'].lower() for row in data):  
+                with open('Menu_makanan.csv', 'a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([idmakanan, makanan, harga])
+                    data.append({\
+                        'ID': idmakanan, 'Nama': makanan, 'Harga': harga}) 
+                    input("\nMenu makanan berhasil ditambahkan!")
+                    break
+            else:
+                input('Makanan sudah ada di menu!, tambahkan menu lain')
+        except Exception as e:
+            print(f"Terjadi kesalahan: {e}")
 
 # ============================ user ============================
 def menu_user():
@@ -557,7 +576,7 @@ def pemesanan_tiket():
     with open('riwayat_pemesanan.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([no, tanggal, nama, departure, arrival, pesawat['AIRLINES'], 
-                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, pesawat['STATUS'], pesanan])
+                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, pesawat['STATUS'], ', '.join(pesanan)])
     
     input("\nTekan Enter untuk kembali ke menu...")
 
