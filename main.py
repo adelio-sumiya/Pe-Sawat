@@ -79,12 +79,12 @@ def login():
 
 
 def load_jadwal():
-    jadwal = []
-    with open('jadwal_pesawat.csv', 'r') as file:   
-        reader = csv.DictReader(file)
+    data = []
+    with open('jadwal_pesawat.csv', mode='r') as f:
+        reader = csv.DictReader(f)
         for row in reader:
-            jadwal.append(row)
-    return jadwal
+            data.append(row)
+    return data
 
 def tampilkan_jadwal():
     clear()
@@ -146,6 +146,15 @@ def check_booked_seats():
                 booked_seats.extend(row['Kursi'].split(', '))  # Memisahkan berdasarkan koma
     return booked_seats
 
+def check_booked_seats_by_flight(kode_pesawat):
+    booked_seats = []
+    with open('riwayat_pemesanan.csv', 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            if row['KODE_PESAWAT'] == kode_pesawat:
+                if 'Kursi' in row and row['Kursi']:
+                    booked_seats.extend(row['Kursi'].split(', '))
+    return booked_seats
 # ============================ admin ============================
 def menu_admin():
     while True:
@@ -508,7 +517,7 @@ def pemesanan_tiket():
     # Membuat peta kursi
     columns = 'ABCDEF'
     seats = create_seat_map()
-    booked_seats = check_booked_seats()
+    booked_seats = check_booked_seats_by_flight(pesawat['KODE'])  # Cek kursi yang sudah dipesan untuk penerbangan ini
 
     # Menandai kursi yang sudah dipesan
     for seat in booked_seats:
@@ -565,6 +574,7 @@ def pemesanan_tiket():
     print(f"Tanggal Keberangkatan: {tanggal}")
     print(f"Rute Penerbangan     : {departure} -> {arrival}")
     print(f"Maskapai             : {pesawat['AIRLINES']}")
+    print(f"Kode Pesawat         : {pesawat['KODE']}")
     print(f"Waktu                : {pesawat['TIME']}")
     print(f"Jumlah Penumpang     : {jumlah_penumpang}")
     print(f"Kursi                : {pesanan}")
@@ -576,8 +586,8 @@ def pemesanan_tiket():
     with open('riwayat_pemesanan.csv', 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([no, tanggal, nama, departure, arrival, pesawat['AIRLINES'], 
-                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, pesawat['STATUS'], ', '.join(pesanan)])
-    
+                        pesawat['TIME'], jumlah_penumpang, total_harga, metode, 
+                        pesawat['STATUS'], ', '.join(pesanan), pesawat['KODE']])
     input("\nTekan Enter untuk kembali ke menu...")
 
 def booking_makanan():
@@ -854,6 +864,7 @@ def reschedule_user():
     harga_baru = int(penerbangan_baru['PRICE']) * jumlah_penumpang_baru
     harga_lama = int(tiket['Total'])
     selisih = harga_baru - harga_lama
+    pesanan = tiket['Kursi']
 
     if selisih > 0:
         print(f"\nBiaya tambahan yang harus dibayar: Rp {selisih:,}")
@@ -884,7 +895,7 @@ def reschedule_user():
     tiket['Jumlah'] = str(jumlah_penumpang_baru)
     tiket['Total'] = str(harga_baru)
     tiket['Metode'] = metode_pembayaran_baru
-    tiket['Kursi'] = tiket['Kursi']
+    tiket['Kursi'] = ', '.join(pesanan)  # Pastikan kursi disimpan dalam format yang benar
 
     # Buat Update data 
     for idx, row in enumerate(data):
@@ -893,7 +904,7 @@ def reschedule_user():
             break
 
     with open('riwayat_pemesanan.csv', 'w', newline='') as file:
-        fieldnames = data[0].keys()
+        fieldnames = tiket.keys()  # Ambil fieldnames dari tiket
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
@@ -959,16 +970,15 @@ def batalkan_tiket():
     # Simpan perubahan ke file
     with open('riwayat_pemesanan.csv', 'w', newline='') as file:
         fieldnames = ['No', 'Tanggal', 'Nama', 'Departure', 'Arrival', 
-                      'Maskapai', 'Waktu', 'Jumlah', 'Total', 'Metode', 'Status']
+                      'Maskapai', 'Waktu', 'Jumlah', 'Total', 'Metode', 'Status', 'Kursi', 'KODE_PESAWAT']
         writer = csv.DictWriter(file, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(data) 
+        writer.writerows(data)
     print("\nTiket Anda berhasil di batalkan.")
     riwayat()
     input("\nTekan Enter untuk kembali...")
 
-def info_delay():
-    pass
+
 
     
 def main():
